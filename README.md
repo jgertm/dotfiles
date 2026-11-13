@@ -14,6 +14,13 @@ Use `--profile work` on a work machine. Bootstrap installs Nix if needed, enable
 
 Bootstrap remembers the selected profile on each machine. `./bootstrap` reuses it and defaults to `home` on a fresh system. `./bootstrap --check --profile work` evaluates the work profile without activating or saving it.
 
+In Codex, use `/hooks` to review and trust the Herdr session hook.
+
+### Caps Lock → Escape
+
+- **macOS** · Open **System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys**. Choose a keyboard, set **Caps Lock Key** to **Escape**, and repeat for each keyboard you use.
+- **Linux** · Bootstrap installs and enables keyd with sudo on systemd-based distributions. On NixOS, add this flake’s `nixosModules.keyd` to your system configuration’s `modules` list and rebuild. On other init systems, install keyd, set `capslock = esc` under `[main]` for all keyboards in `/etc/keyd/default.conf`, and enable the service.
+
 ## Maintain
 
 - Edit `home.nix` and `modules/` for shared settings. Edit `profiles/home.nix` or `profiles/work.nix` for public settings specific to that context.

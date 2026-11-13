@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./modules/aerospace.nix
     ./modules/agents.nix
     ./modules/devtools.nix
     ./modules/emacs.nix
@@ -10,6 +11,7 @@
     ./modules/macos.nix
     ./modules/shell.nix
     ./modules/terminal.nix
+    ./modules/vscode.nix
   ];
 
   # Keep this at the version used for the first activation of this configuration.

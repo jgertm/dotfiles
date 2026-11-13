@@ -1,4 +1,4 @@
-{ codexArchive, config, lib, nixpkgs-newer, pkgs, ... }:
+{ agentPaths, codexArchive, config, herdr, lib, nixpkgs-newer, pkgs, ... }:
 
 let
   newer = import nixpkgs-newer {
@@ -23,9 +23,48 @@ let
     firefox = "firefox";
   };
   playwrightPath = "${config.xdg.configHome}/dotfiles/mcp";
+
+  claudeHome = if (agentPaths.claude or "") == "" then ".claude" else agentPaths.claude;
+  codexHome = if (agentPaths.codex or "") == "" then ".codex" else agentPaths.codex;
+
+  # Run the pinned installer in a clean build directory to get the upstream scripts.
+  herdrHooks = pkgs.runCommand "herdr-agent-hooks" { } ''
+    export HOME="$TMPDIR/home"
+    export CLAUDE_CONFIG_DIR="$HOME/.claude"
+    export CODEX_HOME="$HOME/.codex"
+    mkdir -p "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" "$out"
+    ${lib.getExe herdr} integration install claude
+    ${lib.getExe herdr} integration install codex
+    install -m755 "$CLAUDE_CONFIG_DIR/hooks/herdr-agent-state.sh" "$out/claude.sh"
+    install -m755 "$CODEX_HOME/herdr-agent-state.sh" "$out/codex.sh"
+  '';
+  herdrSessionHook = agent: {
+    hooks = [
+      {
+        type = "command";
+        command = "PATH=${lib.makeBinPath [ pkgs.python3 ]}:$PATH ${pkgs.runtimeShell} ${herdrHooks}/${agent}.sh session";
+        timeout = 10;
+      }
+    ];
+  };
+
+  memoryPath = "dotfiles/agent-memory";
+  memoryIndex = "${config.xdg.configHome}/${memoryPath}/MEMORY.md";
+  agentInstructions = pkgs.writeText "dotfiles-agent-instructions.md" (
+    lib.optionalString (agentPaths.checkout != "") ''
+      My Nix and Home Manager dotfiles checkout is at `${agentPaths.checkout}`. Edit that checkout when I ask to change my dotfiles.
+
+    ''
+    + ''
+      Read the shared agent memory index at `${memoryIndex}` and open the entries relevant to the current task before working.
+    ''
+  );
 in
 {
-  home.file.".claude/settings.json".text = builtins.toJSON {
+  home.file."${claudeHome}/CLAUDE.md".source = agentInstructions;
+  home.file."${codexHome}/AGENTS.md".source = agentInstructions;
+
+  home.file."${claudeHome}/settings.json".text = builtins.toJSON {
     editorMode = "vim";
     tui = "fullscreen";
     verbose = true;
@@ -34,11 +73,18 @@ in
     skipWorkflowUsageWarning = true;
     skipAutoPermissionPrompt = true;
     skipDangerousModePermissionPrompt = true;
+    hooks.SessionStart = [
+      ((herdrSessionHook "claude") // { matcher = "^(startup|resume|clear|compact|fork)$"; })
+    ];
     env = {
       CLAUDE_CODE_ENABLE_AUTO_MODE = "1";
       CLAUDE_CODE_SCROLL_SPEED = "3";
       DISABLE_AUTOUPDATER = "1";
     };
+  };
+
+  home.file."${codexHome}/hooks.json".text = builtins.toJSON {
+    hooks.SessionStart = [ (herdrSessionHook "codex") ];
   };
 
   home.packages = [
@@ -58,7 +104,9 @@ in
         exec ${lib.getExe playwright} --browser ${browser} --headless --isolated "$@"
       '';
     }
-  ) browserNames;
+  ) browserNames // {
+    "${memoryPath}".source = ../config/agent-memory;
+  };
 
   home.activation.registerPlaywright = lib.hm.dag.entryAfter [ "linkGeneration" ] (
     ''

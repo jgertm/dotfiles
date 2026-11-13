@@ -111,7 +111,7 @@ if ! find_nix; then
 fi
 
 DOTFILES_USER=$(id -un)
-export DOTFILES_USER DOTFILES_HOME="$HOME"
+export DOTFILES_USER DOTFILES_HOME="$HOME" DOTFILES_REPO="$repo"
 export DOTFILES_LOCAL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/local.nix"
 if [[ $check == false ]] &&
    ! env -u NIX_CONFIG -u NIX_CONF_DIR NIX_USER_CONF_FILES=/dev/null \
@@ -133,13 +133,40 @@ if [[ $check == true ]]; then
     "$flake#homeConfigurations.$profile.activationPackage.drvPath"
 fi
 
+install_keyd() (
+  local setup_dir
+  setup_dir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-keyd.XXXXXXXX")
+  trap 'rm -rf -- "$setup_dir"' EXIT
+  nix build --no-update-lock-file --out-link "$setup_dir/result" "$flake#keyd-setup"
+
+  # Keep the system service's package reachable after Nix garbage collection.
+  sudo ln -sfnT -- "$(readlink "$setup_dir/result")" /nix/var/nix/gcroots/dotfiles-keyd
+  sudo install -Dm644 -- "$setup_dir/result/default.conf" /etc/keyd/default.conf
+  sudo install -Dm644 -- "$setup_dir/result/uinput.conf" /etc/modules-load.d/60-dotfiles-keyd.conf
+  sudo install -Dm644 -- "$setup_dir/result/keyd.service" /etc/systemd/system/keyd.service
+  if [[ ! -c /dev/uinput ]]; then
+    sudo modprobe uinput
+  fi
+  sudo systemctl daemon-reload
+  sudo systemctl enable keyd.service
+  sudo systemctl restart keyd.service
+)
+
 nix run --no-update-lock-file "$flake#home-manager" -- \
   switch --impure --no-update-lock-file --flake "$flake#$profile"
+
+if [[ $nix_system == *-linux ]]; then
+  if [[ -e /etc/NIXOS ]]; then
+    printf '%s\n' 'For Caps Lock → Escape on NixOS, import this flake’s nixosModules.keyd in your system configuration.'
+  elif [[ -d /run/systemd/system ]]; then
+    install_keyd
+  else
+    printf '%s\n' 'To enable Caps Lock → Escape, install and configure keyd using your distribution’s service manager.'
+  fi
+fi
 
 mkdir -p -- "$profile_dir"
 profile_draft=$(mktemp "$profile_file.XXXXXXXX")
 trap 'rm -f -- "$profile_draft"; if [[ -n ${installer_dir:-} ]]; then rm -rf -- "$installer_dir"; fi' EXIT
 printf '%s\n' "$profile" > "$profile_draft"
 mv -f -- "$profile_draft" "$profile_file"
-
-bash "$repo/scripts/install-agent-memory"

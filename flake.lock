@@ -139,6 +139,22 @@
         "url": "https://github.com/herdrdev/herdr/releases/download/v0.9.5/herdr-linux-aarch64"
       }
     },
+    "herdr-thumbs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794560271,
+        "narHash": "sha256-k5xZe44TlIGDTE9b87lL2qOK6wrDr/7utsfxApfaR1Y=",
+        "owner": "sd2k",
+        "repo": "herdr-thumbs",
+        "rev": "4350b02677ae6c9a4ef738ecb8559da9f7b3b2c0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sd2k",
+        "repo": "herdr-thumbs",
+        "type": "github"
+      }
+    },
     "herdr-x86_64-linux": {
       "flake": false,
       "locked": {
@@ -228,6 +244,7 @@
         "doom-emacs": "doom-emacs",
         "herdr-aarch64-darwin": "herdr-aarch64-darwin",
         "herdr-aarch64-linux": "herdr-aarch64-linux",
+        "herdr-thumbs": "herdr-thumbs",
         "herdr-x86_64-linux": "herdr-x86_64-linux",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",

@@ -5,6 +5,10 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-newer.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    herdr-thumbs = {
+      url = "github:sd2k/herdr-thumbs";
+      flake = false;
+    };
     doom-emacs = {
       url = "github:marienz/nix-doom-emacs-unstraightened";
       inputs.nixpkgs.follows = "nixpkgs-newer";
@@ -69,15 +73,44 @@
         work = ./profiles/work.nix;
       };
       pkgsFor = system: (if lib.hasSuffix "-darwin" system then nixpkgs-darwin else nixpkgs).legacyPackages.${system};
+      keydKeyboard = {
+        ids = [ "*" ];
+        settings.main.capslock = "esc";
+      };
+      keydSetup = pkgs: pkgs.linkFarm "dotfiles-keyd" {
+        "bin/keyd" = lib.getExe pkgs.keyd;
+        "default.conf" = pkgs.writeText "keyd-default.conf" ''
+          [ids]
+          ${lib.concatStringsSep "\n" keydKeyboard.ids}
+
+          ${lib.generators.toINI { } keydKeyboard.settings}
+        '';
+        "uinput.conf" = pkgs.writeText "keyd-uinput.conf" "uinput\n";
+        "keyd.service" = pkgs.writeText "keyd.service" ''
+          [Unit]
+          Description=keyd keyboard remapping daemon
+          After=systemd-modules-load.service
+
+          [Service]
+          Type=exec
+          ExecStart=/nix/var/nix/gcroots/dotfiles-keyd/bin/keyd
+          Restart=on-failure
+
+          [Install]
+          WantedBy=multi-user.target
+        '';
+      };
       mkHome =
-        system: username: homeDirectory: profile: extraModules:
+        system: username: homeDirectory: profile: extraModules: agentPaths:
         home-manager.lib.homeManagerConfiguration {
           pkgs = pkgsFor system;
           extraSpecialArgs = {
-            inherit doom-emacs nixpkgs-newer;
+            inherit agentPaths doom-emacs nixpkgs-newer;
             codexArchive = inputs."codex-${system}".outPath;
-            herdrBinary = inputs."herdr-${system}".outPath;
-            inherit (inputs) tridactyl ublock-origin;
+            herdr = (pkgsFor system).callPackage ./packages/herdr.nix {
+              herdrBinary = inputs."herdr-${system}".outPath;
+            };
+            inherit (inputs) herdr-thumbs tridactyl ublock-origin;
           };
           modules = [
             ./home.nix
@@ -92,26 +125,43 @@
           homeDirectory = builtins.getEnv "DOTFILES_HOME";
           localConfig = builtins.getEnv "DOTFILES_LOCAL_CONFIG";
           extraModules = lib.optional (localConfig != "" && builtins.pathExists localConfig) (import localConfig);
+          agentPaths = {
+            checkout = builtins.getEnv "DOTFILES_REPO";
+            claude = builtins.getEnv "CLAUDE_CONFIG_DIR";
+            codex = builtins.getEnv "CODEX_HOME";
+          };
         in
         if username == "" || homeDirectory == "" then
           throw "Use ./bootstrap so Home Manager knows which user and home directory to configure."
         else if !(lib.elem system systems) then
           throw "Unsupported platform: ${system}"
         else
-          mkHome system username homeDirectory profile extraModules;
+          mkHome system username homeDirectory profile extraModules agentPaths;
     in
     {
       homeConfigurations = lib.mapAttrs (_: localHome) profiles // { default = localHome profiles.home; };
 
-      packages = lib.genAttrs systems (system: {
-        home-manager = home-manager.packages.${system}.home-manager;
-      });
+      packages = lib.genAttrs systems (system:
+        let pkgs = pkgsFor system;
+        in {
+          home-manager = home-manager.packages.${system}.home-manager;
+        } // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+          keyd-setup = keydSetup pkgs;
+        }
+      );
+
+      nixosModules.keyd = {
+        services.keyd = {
+          enable = true;
+          keyboards.default = keydKeyboard;
+        };
+      };
 
       checks = lib.genAttrs systems (system:
         lib.mapAttrs (_: profile:
           (mkHome system "dotfiles-test" (
             if lib.hasSuffix "-darwin" system then "/Users/dotfiles-test" else "/home/dotfiles-test"
-          ) profile [ ]).activationPackage
+          ) profile [ ] { checkout = "/example/dotfiles"; }).activationPackage
         ) profiles
       );
     };

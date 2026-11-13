@@ -1,8 +1,16 @@
-{ config, pkgs, ... }:
+{ config, nixpkgs-newer, pkgs, ... }:
 
+let
+  newer = nixpkgs-newer.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  jdk = newer.temurin-bin-27;
+in
 {
   nixpkgs.config.allowUnfreePackages = [ "1password-cli" ];
 
+  programs.java = {
+    enable = true;
+    package = jdk;
+  };
   programs.k9s.enable = true;
 
   home.file =
@@ -22,7 +30,7 @@
     awscli2
     babashka
     bat
-    clojure
+    (clojure.override { inherit jdk; })
     dust
     eza
     fd
@@ -33,7 +41,7 @@
     htop
     jq
     kubectl
-    leiningen
+    (leiningen.override { inherit jdk; })
     ncdu
     nodejs_24
     ripgrep

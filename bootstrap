@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+check=false
+profile=
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --help|-h)
+      printf '%s\n' 'Usage: ./bootstrap [--profile home|work] [--check]' \
+        '  --profile  Select a profile. Defaults to the saved profile or home.' \
+        '  --check    Evaluate without installing Nix, activating, or saving the profile.'
+      exit 0
+      ;;
+    --check) check=true ;;
+    --profile)
+      if [[ $# -lt 2 || -z $2 ]]; then
+        printf 'Expected home or work after --profile.\n' >&2
+        exit 2
+      fi
+      profile=$2
+      shift
+      ;;
+    *) printf 'Unknown argument: %s\n' "$1" >&2; exit 2 ;;
+  esac
+  shift
+done
+if [[ $(id -u) == 0 ]]; then
+  printf 'Run bootstrap as the user whose home you want to configure.\n' >&2
+  exit 1
+fi
+
+case "$(uname -s):$(uname -m)" in
+  Darwin:arm64)
+    nix_system=aarch64-darwin
+    nix_sha256=ae3b2b1a74b956110d14dd813bee80ea46626a51ddce28d142e0805379a34acf ;;
+  Linux:aarch64)
+    nix_system=aarch64-linux
+    nix_sha256=b4e565fe4db5c352547b8146488cab81db06be89301a4c67b081c76f1e457760 ;;
+  Linux:x86_64)
+    nix_system=x86_64-linux
+    nix_sha256=2c2e146b80834fe0ca201b51deeb939405b4f18e8d2071bf80b10f8123c50464 ;;
+  *) printf 'Unsupported platform: %s / %s\n' "$(uname -s)" "$(uname -m)" >&2; exit 1 ;;
+esac
+
+repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+if [[ ! -f "$repo/flake.lock" ]]; then
+  printf 'Missing flake.lock; use a complete checkout or release archive.\n' >&2
+  exit 1
+fi
+
+profile_dir="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+profile_file="$profile_dir/profile"
+if [[ -z $profile && -f $profile_file ]]; then
+  profile=$(<"$profile_file")
+fi
+profile=${profile:-home}
+case "$profile" in
+  home|work) ;;
+  *) printf 'Unknown profile: %s. Choose home or work.\n' "$profile" >&2; exit 2 ;;
+esac
+
+find_nix() {
+  if command -v nix >/dev/null 2>&1; then return; fi
+  for nix_bin in /nix/var/nix/profiles/default/bin "$HOME/.nix-profile/bin"; do
+    if [[ -x "$nix_bin/nix" ]]; then
+      export PATH="$nix_bin:$PATH"
+      return
+    fi
+  done
+  return 1
+}
+
+install_nix() {
+  if ! command -v curl >/dev/null 2>&1; then
+    printf 'Install curl with your system package manager, then rerun bootstrap.\n' >&2
+    return 1
+  fi
+  local version=2.34.8 archive actual
+  archive="nix-$version-$nix_system"
+  curl --fail --show-error --silent --location --proto '=https' --tlsv1.2 \
+    "https://releases.nixos.org/nix/nix-$version/$archive.tar.xz" \
+    --output "$installer_dir/$archive.tar.xz"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual=$(sha256sum "$installer_dir/$archive.tar.xz")
+  else
+    actual=$(shasum -a 256 "$installer_dir/$archive.tar.xz")
+  fi
+  if [[ ${actual%% *} != "$nix_sha256" ]]; then
+    printf 'SHA-256 mismatch for the Nix installer archive.\n' >&2
+    return 1
+  fi
+  tar -xJf "$installer_dir/$archive.tar.xz" -C "$installer_dir"
+  INVOKED_FROM_INSTALL_IN=1 NIX_INSTALLER_NO_CHANNEL_ADD=1 \
+    NIX_EXTRA_CONF='extra-experimental-features = nix-command flakes' \
+    /bin/sh "$installer_dir/$archive/install" --daemon
+}
+
+if ! find_nix; then
+  if [[ $check == true ]]; then
+    printf 'Nix is required to check the configuration. Run ./bootstrap to install it.\n' >&2
+    exit 1
+  fi
+  installer_dir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-nix.XXXXXXXX")
+  trap 'rm -rf -- "$installer_dir"' EXIT
+  install_nix
+  if ! find_nix; then
+    printf 'Nix is installed. Open a new terminal and run ./bootstrap again.\n' >&2
+    exit 1
+  fi
+fi
+
+DOTFILES_USER=$(id -un)
+export DOTFILES_USER DOTFILES_HOME="$HOME"
+export DOTFILES_LOCAL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/local.nix"
+if [[ $check == false ]] &&
+   ! env -u NIX_CONFIG -u NIX_CONF_DIR NIX_USER_CONF_FILES=/dev/null \
+     nix eval --expr 'assert builtins ? getFlake; true' >/dev/null 2>&1; then
+  printf '\nextra-experimental-features = nix-command flakes\n' |
+    sudo tee -a /etc/nix/nix.conf >/dev/null
+fi
+export NIX_CONFIG="${NIX_CONFIG:+$NIX_CONFIG$'\n'}extra-experimental-features = nix-command flakes"
+
+# Use Git's tracked source for a checkout, or the unpacked tree for a download.
+flake="path:$repo"
+if [[ -e "$repo/.git" ]] && command -v git >/dev/null 2>&1 &&
+  git -C "$repo" ls-files --error-unmatch -- flake.nix >/dev/null 2>&1; then
+  flake="$repo"
+fi
+
+if [[ $check == true ]]; then
+  exec nix eval --raw --impure --no-update-lock-file \
+    "$flake#homeConfigurations.$profile.activationPackage.drvPath"
+fi
+
+nix run --no-update-lock-file "$flake#home-manager" -- \
+  switch --impure --no-update-lock-file --flake "$flake#$profile"
+
+mkdir -p -- "$profile_dir"
+profile_draft=$(mktemp "$profile_file.XXXXXXXX")
+trap 'rm -f -- "$profile_draft"; if [[ -n ${installer_dir:-} ]]; then rm -rf -- "$installer_dir"; fi' EXIT
+printf '%s\n' "$profile" > "$profile_draft"
+mv -f -- "$profile_draft" "$profile_file"
+
+bash "$repo/scripts/install-agent-memory"

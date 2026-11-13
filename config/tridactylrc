@@ -1,0 +1,52 @@
+" -*- mode: vimrc -*-
+" Home Manager installs the native messenger. Run :source to reload this file.
+
+set theme shydactyl
+set hintfiltermode vimperator-reflow
+set hintnames numeric
+set editorcmd emacsclient -c
+set incsearch true
+set modeindicatorshowkeys true
+
+unbind D
+bind d scrollpage 0.5
+unbind U
+bind u scrollpage -0.5
+bind x tabclose
+bind X undo
+bind < tabmove -1
+bind > tabmove +1
+unbind <C-f>
+
+bind --modeinput <C-i> editor
+
+bind i mode ignore
+bind I mode ignore
+bind --mode=ignore <S-Escape> mode normal
+unbind --mode=ignore <Escape>
+" unbind --mode=normal <Escape>
+" bind --mode=ignore <Escape> mode normal
+" bindurl youtube.com --mode=ignore i echo lol
+
+" Comment toggler for Reddit, Hacker News and Lobste.rs
+bind ;c hint -Jc [class*="expand"],[class="togg"],[class="comment_folder"]
+
+" Only hint search results on Google
+" bindurl www.google.com f hint -Jc .rc > .r > a
+" bindurl www.google.com F hint -Jbc .rc>.r>a
+
+" Make gu take you back to subreddit from comments
+bindurl reddit.com gu urlparent 4
+
+" Handy multiwindow/multitasking binds
+bind gd tabdetach
+bind gD composite tabduplicate; tabdetach
+
+" Make yy use canonical / short links on the 5 websites that support them
+bind yy clipboard yankcanon
+
+bindurl youtube.com ;h hint -JcF ytd-rich-grid-media[class*="ytd-rich-item-rendere"] e => e.dispatchEvent(new MouseEvent('mouseenter', {}))
+
+blacklistadd app.slack.com
+" jupyter
+blacklistadd localhost:8888

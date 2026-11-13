@@ -1,0 +1,267 @@
+{
+  "nodes": {
+    "codex-aarch64-darwin": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-sEj0Uhb+nZq+T3Yk/QHqs+4G/Y7ZoqHrAVSKIlTiGM8=",
+        "type": "file",
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-aarch64-apple-darwin.tar.gz"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-aarch64-apple-darwin.tar.gz"
+      }
+    },
+    "codex-aarch64-linux": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-VGyoPpeIDRT/cOh6RSFoOg/O5jGcHdiwbADnxgIB2kw=",
+        "type": "file",
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-aarch64-unknown-linux-musl.tar.gz"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-aarch64-unknown-linux-musl.tar.gz"
+      }
+    },
+    "codex-x86_64-linux": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-czuG0IltVFjR22HUYYCt33IO3ZCRyWV21eAYYZRDNHU=",
+        "type": "file",
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-x86_64-unknown-linux-musl.tar.gz"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-x86_64-unknown-linux-musl.tar.gz"
+      }
+    },
+    "doom-emacs": {
+      "inputs": {
+        "doomdir": [],
+        "doomemacs": "doomemacs",
+        "doomemacs-modules": "doomemacs-modules",
+        "emacs-overlay": "emacs-overlay",
+        "nixpkgs": [
+          "nixpkgs-newer"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794569982,
+        "narHash": "sha256-EfNipnzGEEPS3QebLbLngI1zfS7ZKfYOPZWSJn+USys=",
+        "owner": "marienz",
+        "repo": "nix-doom-emacs-unstraightened",
+        "rev": "433519e634c5cf9c68e5fdb04ff9e7cb8cfe83d5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "marienz",
+        "repo": "nix-doom-emacs-unstraightened",
+        "type": "github"
+      }
+    },
+    "doomemacs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793928737,
+        "narHash": "sha256-nUIqtbuv8Qrw4LH8CzVty/2D0wRqX9bMdDwqNvDa0Do=",
+        "owner": "doomemacs",
+        "repo": "core",
+        "rev": "7ccac7f643ad67baa25b216717cf8617a0903c69",
+        "type": "github"
+      },
+      "original": {
+        "owner": "doomemacs",
+        "repo": "core",
+        "type": "github"
+      }
+    },
+    "doomemacs-modules": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793763084,
+        "narHash": "sha256-aEkGwMUoLxRlSMLU1StIqVMAdhu97+rT/ByEz1uuNEg=",
+        "owner": "doomemacs",
+        "repo": "modules",
+        "rev": "f054be8fcdd2a0446eb8259d76dd4f6f76acc0b7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "doomemacs",
+        "repo": "modules",
+        "type": "github"
+      }
+    },
+    "emacs-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "doom-emacs"
+        ],
+        "nixpkgs-stable": [
+          "doom-emacs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794412481,
+        "narHash": "sha256-Pv/EOm33j0bgqpJGgrbRM91YanRk1aC23qNXrThEydA=",
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "rev": "d6b7a178036a028d08062c15f27fcec0094d1f5e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "type": "github"
+      }
+    },
+    "herdr-aarch64-darwin": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-g6PNvioXyv/FRtYXzXg9PXPyiHeb95M1Guo+PZ5xpf8=",
+        "type": "file",
+        "url": "https://github.com/herdrdev/herdr/releases/download/v0.9.5/herdr-macos-aarch64"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/herdrdev/herdr/releases/download/v0.9.5/herdr-macos-aarch64"
+      }
+    },
+    "herdr-aarch64-linux": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-/mcuhm+i+75/xT4NB86+rZxufCn215FAN0CXhwdJ+w4=",
+        "type": "file",
+        "url": "https://github.com/herdrdev/herdr/releases/download/v0.9.5/herdr-linux-aarch64"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/herdrdev/herdr/releases/download/v0.9.5/herdr-linux-aarch64"
+      }
+    },
+    "herdr-x86_64-linux": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-Oii5/dTdw54oSRTnFhezO+XQU8vek8K+jrLUpMiTWRA=",
+        "type": "file",
+        "url": "https://github.com/herdrdev/herdr/releases/download/v0.9.5/herdr-linux-x86_64"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/herdrdev/herdr/releases/download/v0.9.5/herdr-linux-x86_64"
+      }
+    },
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794251182,
+        "narHash": "sha256-R2sZBXiOJo3HAnvTiVkbbHDJy//JMlAwUKEiPbfqPXk=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "6eb2d33d1d0c95a37ef6443c88e6c1686012ee8b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "ref": "release-26.05",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1794165970,
+        "narHash": "sha256-XuAV2cUwaod3Bt4XFVqiXz3v1w2ex16W6Sv4S7EWres=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ac588ef1c914865dad517b337ea0eb9694a4021c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-darwin": {
+      "locked": {
+        "lastModified": 1794217284,
+        "narHash": "sha256-Ya0ojDh1BF5zgyZRlehygC0ZvvEg2WaGZWn1xiNozmM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f4244ef33645badc8157562b5e80748929b396c2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-newer": {
+      "locked": {
+        "lastModified": 1794495034,
+        "narHash": "sha256-E0hYoioqUtM2XmPPvYYpJgdADF5AW9oOoPSEiM9dTHQ=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2074cc672349f14240fb7ea90d509e0b643e9dd4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "codex-aarch64-darwin": "codex-aarch64-darwin",
+        "codex-aarch64-linux": "codex-aarch64-linux",
+        "codex-x86_64-linux": "codex-x86_64-linux",
+        "doom-emacs": "doom-emacs",
+        "herdr-aarch64-darwin": "herdr-aarch64-darwin",
+        "herdr-aarch64-linux": "herdr-aarch64-linux",
+        "herdr-x86_64-linux": "herdr-x86_64-linux",
+        "home-manager": "home-manager",
+        "nixpkgs": "nixpkgs",
+        "nixpkgs-darwin": "nixpkgs-darwin",
+        "nixpkgs-newer": "nixpkgs-newer",
+        "tridactyl": "tridactyl",
+        "ublock-origin": "ublock-origin"
+      }
+    },
+    "tridactyl": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-N3wxCjjn1UyBst6G6J3LsqXeSa6OMt7JQMlMPPJEv1A=",
+        "type": "file",
+        "url": "https://addons.mozilla.org/firefox/downloads/file/5014416/tridactyl_vim-1.25.1.xpi"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://addons.mozilla.org/firefox/downloads/file/5014416/tridactyl_vim-1.25.1.xpi"
+      }
+    },
+    "ublock-origin": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-PPaO8M8HFxfJAhRLy+LfanqfjWYeQn2qVZH33VFBOVg=",
+        "type": "file",
+        "url": "https://addons.mozilla.org/firefox/downloads/file/5225273/ublock_origin-1.76.0.xpi"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://addons.mozilla.org/firefox/downloads/file/5225273/ublock_origin-1.76.0.xpi"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

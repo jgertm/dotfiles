@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+begin='<!-- dotfiles-bootstrap:begin -->'
+end='<!-- dotfiles-bootstrap:end -->'
+
+write_memory() (
+  file=$1
+  mkdir -p -- "$(dirname -- "$file")"
+  if [[ -L $file || ( -e $file && ! -f $file ) ]]; then
+    printf 'Add the dotfiles location to %s manually. Bootstrap skips linked or nonregular memory files.\n' "$file" >&2
+    return 0
+  fi
+
+  draft=$(mktemp "$file.XXXXXXXX")
+  trap 'rm -f -- "$draft"' EXIT
+  if [[ -f $file ]]; then
+    awk -v begin="$begin" -v end="$end" '
+      $0 == begin { if (managed) exit 1; managed = 1; next }
+      $0 == end { if (!managed) exit 1; managed = 0; next }
+      !managed { print }
+      END { if (managed) exit 1 }
+    ' "$file" > "$draft"
+  fi
+
+  printf '%s\n%s\n%s\n' "$begin" \
+    "My Nix and Home Manager dotfiles checkout is at \`$repo\`. Edit that checkout when I ask to change my dotfiles." \
+    "$end" >> "$draft"
+  if [[ ! -f $file ]] || ! cmp -s "$draft" "$file"; then
+    mv -f -- "$draft" "$file"
+  fi
+)
+
+write_memory "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/CLAUDE.md"
+write_memory "${CODEX_HOME:-$HOME/.codex}/AGENTS.md"

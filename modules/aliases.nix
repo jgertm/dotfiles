@@ -2,6 +2,7 @@ let
   listing = "eza --color auto --group-directories-first";
 in
 {
+  ".." = "cd ..";
   bazel = "bazelisk";
   k = "kubectl";
   rpn = "emacs -Q -nw -f full-calc";

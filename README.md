@@ -4,7 +4,29 @@ Nix and Home Manager configuration for Apple Silicon macOS and 64-bit ARM and x8
 
 ## Install
 
-Clone the repository or extract a release archive. From that directory, run as your regular user.
+For a quick install, run this as your regular user with `curl` and `unzip` available. It downloads the current `main` branch to `~/Dropbox/dotfiles`.
+
+```sh
+(
+  set -eu
+  parent="$HOME/Dropbox"
+  target="$parent/dotfiles"
+  mkdir -p "$parent"
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    printf 'Already exists: %s\n' "$target" >&2
+    exit 1
+  fi
+  tmp=$(mktemp -d "$parent/.dotfiles-install.XXXXXXXX")
+  trap 'rm -rf -- "$tmp"' EXIT
+  curl -fsSL https://github.com/jgertm/dotfiles/archive/refs/heads/main.zip -o "$tmp/dotfiles.zip"
+  unzip -q "$tmp/dotfiles.zip" -d "$tmp"
+  mv "$tmp/dotfiles-main" "$target"
+  cd "$target"
+  ./bootstrap --profile home
+)
+```
+
+If you cloned the repository or already extracted an archive, run bootstrap from that directory.
 
 ```sh
 ./bootstrap --profile home

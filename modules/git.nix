@@ -30,7 +30,11 @@
       core.editor = "vim";
       commit.verbose = true;
       branch.sort = "-committerdate";
-      user.useConfigOnly = true;
+      user = {
+        name = "Tim Jäger";
+        email = "6616642+jgertm@users.noreply.github.com";
+        useConfigOnly = true;
+      };
       alias.root = "rev-parse --show-toplevel";
     };
   };

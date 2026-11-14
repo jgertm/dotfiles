@@ -49,4 +49,4 @@ In Codex, use `/hooks` to review and trust the Herdr session hook.
 - For one machine, add an optional Home Manager module at `${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/local.nix`. Keep credentials outside Nix and outside the checkout.
 - After pulling or editing, run `./bootstrap --check` and then `./bootstrap`. In a Git checkout, stage new files before evaluating so the flake can see them.
 - To update a branch input, run `nix flake update <input>`. For a versioned release asset, update its URL in `flake.nix` and run `nix flake lock`. Review `flake.lock` before applying.
-- On a new machine, set your Git identity in `~/.gitconfig.local` or in each repository.
+- Git defaults to Tim Jäger's GitHub noreply identity. Override it in `~/.gitconfig.local` or in each repository when needed.

@@ -92,7 +92,10 @@ in
       exec ${newer.claude-code}/bin/claude --allow-dangerously-skip-permissions "$@"
     '')
     (pkgs.writeShellScriptBin "codex" ''
-      exec ${codex}/bin/codex -c check_for_update_on_startup=false -c tui.vim_mode_default=true "$@"
+      exec ${codex}/bin/codex --approve-for-me \
+        -c check_for_update_on_startup=false \
+        -c tui.vim_mode_default=true \
+        -c tui.mouse_scroll_speed=3.0 "$@"
     '')
   ];
 

@@ -11,6 +11,7 @@
     zsh = {
       enable = true;
       defaultKeymap = "viins";
+      autosuggestion.enable = true;
       shellAliases = import ./aliases.nix;
 
       # Audit completion paths at most once a day. The fast path only reads
@@ -98,7 +99,6 @@
     atuin = {
       enable = true;
       enableZshIntegration = true;
-      flags = [ "--disable-up-arrow" ];
       settings = {
         filter_mode = "global";
         auto_sync = false;

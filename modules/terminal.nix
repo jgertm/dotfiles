@@ -23,6 +23,8 @@ in
   '';
 
   xdg.configFile."herdr/config.toml".source = (pkgs.formats.toml { }).generate "herdr-config.toml" {
+    # Home Manager owns this read-only file; onboarding cannot save into it.
+    onboarding = false;
     terminal.new_cwd = "follow";
     ui.copy_on_select = true;
     session.resume_agents_on_restore = true;

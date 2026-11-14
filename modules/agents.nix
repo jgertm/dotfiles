@@ -95,7 +95,8 @@ in
       exec ${codex}/bin/codex --approve-for-me \
         -c check_for_update_on_startup=false \
         -c tui.vim_mode_default=true \
-        -c tui.mouse_scroll_speed=3.0 "$@"
+        -c tui.mouse_scroll_speed=3.0 \
+        -c 'tui.status_line=["model-with-reasoning","context-used","current-dir","thread-name"]' "$@"
     '')
   ];
 

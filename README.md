@@ -44,3 +44,16 @@ In Codex, use `/hooks` to review and trust the Herdr session hook.
 - After pulling or editing, run `./bootstrap --check` and then `./bootstrap`. In a Git checkout, stage new files before evaluating so the flake can see them.
 - To update a branch input, run `nix flake update <input>`. For a versioned release asset, update its URL in `flake.nix` and run `nix flake lock`. Review `flake.lock` before applying.
 - Git defaults to Tim Jäger's GitHub noreply identity. Override it in `~/.gitconfig.local` or in each repository when needed.
+
+## T3 Code
+
+Home Manager installs pinned official T3 Code releases with verified hashes.
+macOS uses the signed desktop bundle; Linux installs the headless CLI.
+On macOS it merges Iosevka preferences into writable T3 settings and
+publishes the Tokyo Night theme from `config/t3code/`. Run `./bootstrap` to
+apply changes; update T3 through Nix rather than the app's updater.
+
+Configure remote environments and route preferences in T3 itself. Pairing
+credentials and the encrypted route catalog belong to T3's private writable
+state, not Git or the Nix store. Provider logins likewise stay on the machine
+running agents. Service and network configuration are outside this repository.

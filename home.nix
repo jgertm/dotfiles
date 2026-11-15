@@ -11,6 +11,7 @@
     ./modules/macos.nix
     ./modules/shell.nix
     ./modules/terminal.nix
+    ./modules/t3code.nix
     ./modules/vscode.nix
   ];
 

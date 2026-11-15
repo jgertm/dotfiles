@@ -77,6 +77,7 @@ in
     settings = {
       command = "direct:${startHerdr}";
       font-family = "Iosevka";
+      theme = "TokyoNight";
     };
     # Herdr owns the terminal surface. Its child shells use their own integration.
     enableZshIntegration = false;

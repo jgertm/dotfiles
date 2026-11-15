@@ -126,7 +126,7 @@ in
     settings["tui"].update({
         "vim_mode_default": True,
         "mouse_scroll_speed": 3.0,
-        "status_line": ["model-with-reasoning", "context-used", "current-dir", "thread-name"],
+        "status_line": ["model-with-reasoning", "context-used", "five-hour-limit", "weekly-limit", "current-dir", "thread-name"],
     })
     updated = tomlkit.dumps(settings)
     if updated != original:

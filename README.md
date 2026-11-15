@@ -4,27 +4,21 @@ Nix and Home Manager configuration for Apple Silicon macOS and 64-bit ARM and x8
 
 ## Install
 
-For a quick install, run this as your regular user with `curl` and `unzip` available. It downloads the current `main` branch to `~/Dropbox/dotfiles`.
+For a quick install, run this as your regular user with Bash, `curl`, and `tar`
+available. It downloads the current `main` branch to `~/Dropbox/dotfiles` and
+refuses to overwrite an existing destination.
 
 ```sh
-(
-  set -eu
-  parent="$HOME/Dropbox"
-  target="$parent/dotfiles"
-  mkdir -p "$parent"
-  if [ -e "$target" ] || [ -L "$target" ]; then
-    printf 'Already exists: %s\n' "$target" >&2
-    exit 1
-  fi
-  tmp=$(mktemp -d "$parent/.dotfiles-install.XXXXXXXX")
-  trap 'rm -rf -- "$tmp"' EXIT
-  curl -fsSL https://github.com/jgertm/dotfiles/archive/refs/heads/main.zip -o "$tmp/dotfiles.zip"
-  unzip -q "$tmp/dotfiles.zip" -d "$tmp"
-  mv "$tmp/dotfiles-main" "$target"
-  cd "$target"
-  ./bootstrap --profile home
-)
+curl -fsSL https://raw.githubusercontent.com/jgertm/dotfiles/main/bootstrap |
+  bash -s -- --profile home
 ```
+
+Append `--dir "$HOME/src/dotfiles"` to choose another destination. `--dir` is
+only for piped installs; `--check` requires an existing checkout. Once Home
+Manager installs Git, bootstrap turns the downloaded snapshot into a Git
+repository with `main` tracking `origin/main` over HTTPS. Existing files are
+preserved; any differences from the fetched commit appear as local changes.
+Existing Git checkouts keep their branches and remotes unchanged.
 
 If you cloned the repository or already extracted an archive, run bootstrap from that directory.
 

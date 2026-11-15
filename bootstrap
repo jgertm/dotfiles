@@ -1,17 +1,29 @@
 #!/usr/bin/env bash
+# Parse the complete entry point before doing work when streamed through curl.
+bootstrap_main() {
 set -euo pipefail
 
 check=false
 profile=
+destination=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help|-h)
-      printf '%s\n' 'Usage: ./bootstrap [--profile home|work] [--check]' \
+      printf '%s\n' 'Usage: bootstrap [--profile home|work] [--check] [--dir PATH]' \
         '  --profile  Select a profile. Defaults to the saved profile or home.' \
-        '  --check    Evaluate without installing Nix, activating, or saving the profile.'
+        '  --check    Evaluate a local checkout without installing Nix or activating.' \
+        '  --dir      Destination for a piped install (default: ~/Dropbox/dotfiles).'
       exit 0
       ;;
     --check) check=true ;;
+    --dir)
+      if [[ $# -lt 2 || -z $2 || $2 == --* ]]; then
+        printf 'Expected a path after --dir.\n' >&2
+        exit 2
+      fi
+      destination=$2
+      shift
+      ;;
     --profile)
       if [[ $# -lt 2 || -z $2 ]]; then
         printf 'Expected home or work after --profile.\n' >&2
@@ -24,6 +36,10 @@ while [[ $# -gt 0 ]]; do
   esac
   shift
 done
+case "$profile" in
+  ""|home|work) ;;
+  *) printf 'Unknown profile: %s. Choose home or work.\n' "$profile" >&2; exit 2 ;;
+esac
 if [[ $(id -u) == 0 ]]; then
   printf 'Run bootstrap as the user whose home you want to configure.\n' >&2
   exit 1
@@ -42,6 +58,59 @@ case "$(uname -s):$(uname -m)" in
   *) printf 'Unsupported platform: %s / %s\n' "$(uname -s)" "$(uname -m)" >&2; exit 1 ;;
 esac
 
+if [[ -z ${BASH_SOURCE[0]:-} ]]; then
+  if [[ $check == true ]]; then
+    printf 'Run --check from an existing checkout.\n' >&2
+    exit 2
+  fi
+  for command in curl tar; do
+    command -v "$command" >/dev/null 2>&1 || {
+      printf 'Install %s, then rerun bootstrap.\n' "$command" >&2
+      exit 1
+    }
+  done
+  destination=${destination:-"$HOME/Dropbox/dotfiles"}
+  # Make paths absolute, including relative paths beginning with a dash.
+  [[ $destination == /* ]] || destination="$PWD/$destination"
+  if [[ -e $destination || -L $destination ]]; then
+    printf 'Already exists: %s\nRun its bootstrap instead.\n' "$destination" >&2
+    exit 1
+  fi
+  parent=$(dirname -- "$destination")
+  mkdir -p -- "$parent"
+  download_dir=$(mktemp -d "$parent/.dotfiles-install.XXXXXXXX")
+  trap 'rm -rf -- "$download_dir"' EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  curl --fail --show-error --silent --location --proto '=https' --proto-redir '=https' \
+    https://github.com/jgertm/dotfiles/archive/refs/heads/main.tar.gz \
+    --output "$download_dir/source.tar.gz"
+  tar -xzf "$download_dir/source.tar.gz" -C "$download_dir"
+  source_dir="$download_dir/dotfiles-main"
+  for file in bootstrap flake.nix flake.lock; do
+    if [[ ! -s "$source_dir/$file" ]]; then
+      printf 'Downloaded archive is missing %s.\n' "$file" >&2
+      exit 1
+    fi
+  done
+  bash -n "$source_dir/bootstrap"
+  # Claim the destination atomically: never merge into an existing directory,
+  # even if another installer created it while the download was running.
+  mkdir -- "$destination"
+  shopt -s dotglob nullglob
+  mv -- "$source_dir"/* "$destination/"
+  if [[ -n $profile ]]; then
+    bash "$destination/bootstrap" --profile "$profile"
+  else
+    bash "$destination/bootstrap"
+  fi
+  exit 0
+fi
+
+if [[ -n $destination ]]; then
+  printf '%s\n' '--dir is only supported for piped installs.' >&2
+  exit 2
+fi
 repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 if [[ ! -f "$repo/flake.lock" ]]; then
   printf 'Missing flake.lock; use a complete checkout or release archive.\n' >&2
@@ -170,3 +239,28 @@ profile_draft=$(mktemp "$profile_file.XXXXXXXX")
 trap 'rm -f -- "$profile_draft"; if [[ -n ${installer_dir:-} ]]; then rm -rf -- "$installer_dir"; fi' EXIT
 printf '%s\n' "$profile" > "$profile_draft"
 mv -f -- "$profile_draft" "$profile_file"
+
+# Archive installs gain Git only after Home Manager has installed the toolchain.
+# Prepare metadata separately so a failed fetch leaves a retryable archive.
+if [[ ! -e "$repo/.git" && ! -L "$repo/.git" ]]; then
+  (
+    export PATH="$HOME/.nix-profile/bin:$PATH"
+    git_dir=$(mktemp -d "$repo/.dotfiles-git.XXXXXXXX")
+    trap 'rm -rf -- "$git_dir"' EXIT
+    git init --bare --initial-branch=main "$git_dir"
+    git --git-dir="$git_dir" remote add origin https://github.com/jgertm/dotfiles.git
+    git --git-dir="$git_dir" fetch origin
+    git --git-dir="$git_dir" update-ref refs/heads/main refs/remotes/origin/main
+    git --git-dir="$git_dir" config core.bare false
+    git --git-dir="$git_dir" --work-tree="$repo" read-tree refs/heads/main
+    git --git-dir="$git_dir" config branch.main.remote origin
+    git --git-dir="$git_dir" config branch.main.merge refs/heads/main
+    # Populate the index without checking out files: preserve local edits and
+    # expose any difference if main advanced since the archive was downloaded.
+    mv -- "$git_dir" "$repo/.git"
+    printf 'Git repository ready: main tracks origin/main.\n'
+  )
+fi
+}
+
+bootstrap_main "$@"

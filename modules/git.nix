@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 
 {
   programs.git = {
@@ -7,6 +7,10 @@
     includes = [ { path = "~/.gitconfig.local"; } ];
 
     settings = {
+      # Use the existing gh login for non-interactive HTTPS clones (including T3).
+      # Keep gh's own preferences and credential files writable and unmanaged.
+      credential."https://github.com".helper = [ "" "${pkgs.gh}/bin/gh auth git-credential" ];
+      credential."https://gist.github.com".helper = [ "" "${pkgs.gh}/bin/gh auth git-credential" ];
       init.defaultBranch = "main";
       pull.rebase = true;
       rebase = {

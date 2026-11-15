@@ -50,14 +50,27 @@ let
 
   memoryPath = "dotfiles/agent-memory";
   memoryIndex = "${config.xdg.configHome}/${memoryPath}/MEMORY.md";
+  memoryFiles = lib.filter
+    (name: name != "MEMORY.md" && lib.hasSuffix ".md" name)
+    (builtins.attrNames (builtins.readDir ../config/agent-memory));
   agentInstructions = pkgs.writeText "dotfiles-agent-instructions.md" (
     lib.optionalString (agentPaths.checkout != "") ''
       My Nix and Home Manager dotfiles checkout is at `${agentPaths.checkout}`. Edit that checkout when I ask to change my dotfiles.
 
     ''
     + ''
-      Read the shared agent memory index at `${memoryIndex}` and open the entries relevant to the current task before working.
+      Shared agent memories are included below. Treat them as already loaded for
+      this session and apply the relevant entries. Do not reread their source
+      files on every turn or task. Read a source again only when it has changed,
+      the user asks you to refresh it, or its contents are missing from context
+      after compaction. Preserve relevant memories in compaction summaries.
+
+      The editable source files are indexed at `${memoryIndex}`. In the dotfiles
+      checkout, edit `config/agent-memory/` and run bootstrap to regenerate these
+      instructions; do not edit the generated instruction files directly.
+
     ''
+    + lib.concatMapStringsSep "\n" (name: builtins.readFile (../config/agent-memory + "/${name}")) memoryFiles
   );
 in
 {

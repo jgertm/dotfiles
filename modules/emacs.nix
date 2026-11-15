@@ -36,9 +36,8 @@ in
 
   programs.zsh.shellAliases = {
     emt = "${terminalEditor}";
-    rpn = "${terminalEditor} --eval '(full-calc)'";
-    # Use the client's cwd, not the daemon's current buffer directory.
-    magit = "${terminalEditor} --eval '(magit-status (process-get (frame-parameter nil (quote client)) (quote server-client-directory)))'";
+    rpn = "${terminalEditor} --eval '(dotfiles-calc-terminal)'";
+    magit = "${terminalEditor} --eval '(dotfiles-magit-terminal)'";
   };
   home.sessionVariables = {
     EDITOR = "${terminalEditor}";

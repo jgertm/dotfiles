@@ -6,6 +6,8 @@
       ;; provide syntax, current-line, and Magit faces without local overrides.
       doom-theme 'doom-tokyo-night)
 
+(global-visual-line-mode 1)
+
 ;; Decorate file headings without changing Magit's sections or patch text.
 (defun dotfiles-magit-status-diffstats ()
   "Show added/removed line counts on each status file heading."

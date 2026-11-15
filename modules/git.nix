@@ -1,4 +1,4 @@
-{ ... }:
+{ config, ... }:
 
 {
   programs.git = {
@@ -27,7 +27,7 @@
         algorithm = "histogram";
         colorMoved = "zebra";
       };
-      core.editor = "vim";
+      core.editor = config.home.sessionVariables.EDITOR;
       commit.verbose = true;
       branch.sort = "-committerdate";
       user = {

@@ -5,7 +5,7 @@ in
   ".." = "cd ..";
   bazel = "bazelisk";
   k = "kubectl";
-  rpn = "emacs -Q -nw -f full-calc";
+  gst = "git status";
 
   eza = listing;
   ls = listing;

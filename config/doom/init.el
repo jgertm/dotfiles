@@ -7,6 +7,7 @@
        :ui
        doom
        modeline
+       vc-gutter
        (popup +defaults)
 
        :editor
@@ -24,6 +25,7 @@
        magit
 
        :os
+       tty
        (:if (featurep :system 'macos) macos)
 
        :lang

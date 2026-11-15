@@ -92,6 +92,12 @@ in
       exec ${newer.claude-code}/bin/claude --allow-dangerously-skip-permissions "$@"
     '')
     (pkgs.writeShellScriptBin "codex" ''
+      # Codex 0.169 treats TERM_PROGRAM=herdr as an unknown terminal before
+      # checking GHOSTTY_RESOURCES_DIR, disabling inline image previews.
+      # Let its Ghostty fallback run in this known Kitty-capable combination.
+      if [ "''${TERM_PROGRAM:-}" = herdr ] && [ -n "''${GHOSTTY_RESOURCES_DIR:-}" ]; then
+        unset TERM_PROGRAM TERM_PROGRAM_VERSION
+      fi
       exec ${codex}/bin/codex --approve-for-me \
         -c check_for_update_on_startup=false \
         -c tui.vim_mode_default=true \

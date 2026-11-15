@@ -30,6 +30,7 @@ in
     awscli2
     babashka
     bat
+    btop
     (clojure.override { inherit jdk; })
     dust
     eza

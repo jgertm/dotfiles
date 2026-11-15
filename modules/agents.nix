@@ -98,13 +98,45 @@ in
       if [ "''${TERM_PROGRAM:-}" = herdr ] && [ -n "''${GHOSTTY_RESOURCES_DIR:-}" ]; then
         unset TERM_PROGRAM TERM_PROGRAM_VERSION
       fi
-      exec ${codex}/bin/codex --approve-for-me \
-        -c check_for_update_on_startup=false \
-        -c tui.vim_mode_default=true \
-        -c tui.mouse_scroll_speed=3.0 \
-        -c 'tui.status_line=["model-with-reasoning","context-used","current-dir","thread-name"]' "$@"
+      exec ${codex}/bin/codex "$@"
     '')
   ];
+
+  # Codex writes its own settings here. Merge our preferences into the writable
+  # file instead of symlinking it or using -c (which forces embedded-server mode).
+  home.activation.configureCodex = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run ${pkgs.python3.withPackages (ps: [ ps.tomlkit ])}/bin/python3 - ${lib.escapeShellArg "${config.home.homeDirectory}/${codexHome}/config.toml"} <<'PY'
+    import os
+    from pathlib import Path
+    import sys
+    import tempfile
+    import tomlkit
+
+    path = Path(sys.argv[1])
+    original = path.read_text() if path.exists() else ""
+    settings = tomlkit.parse(original)
+    settings["check_for_update_on_startup"] = False
+    # Exact persistent equivalent of --approve-for-me, whose CLI expansion
+    # also injects overrides and therefore forces embedded-server mode.
+    settings["approvals_reviewer"] = "auto_review"
+    settings["approval_policy"] = "on-request"
+    settings["sandbox_mode"] = "workspace-write"
+    if "tui" not in settings:
+        settings["tui"] = tomlkit.table()
+    settings["tui"].update({
+        "vim_mode_default": True,
+        "mouse_scroll_speed": 3.0,
+        "status_line": ["model-with-reasoning", "context-used", "current-dir", "thread-name"],
+    })
+    updated = tomlkit.dumps(settings)
+    if updated != original:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False) as output:
+            output.write(updated)
+            temporary = output.name
+        os.replace(temporary, path)
+    PY
+  '';
 
   xdg.configFile = lib.mapAttrs' (name: browser:
     lib.nameValuePair "dotfiles/mcp/playwright-${name}" {
@@ -118,7 +150,7 @@ in
     "${memoryPath}".source = ../config/agent-memory;
   };
 
-  home.activation.registerPlaywright = lib.hm.dag.entryAfter [ "linkGeneration" ] (
+  home.activation.registerPlaywright = lib.hm.dag.entryAfter [ "linkGeneration" "configureCodex" ] (
     ''
       claudeConfig="''${CLAUDE_CONFIG_DIR:-$HOME}/.claude.json"
     ''

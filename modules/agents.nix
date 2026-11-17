@@ -22,6 +22,10 @@ let
     chrome = "chromium";
     firefox = "firefox";
   };
+  playwrightServers = lib.listToAttrs (lib.concatMap (name: [
+    (lib.nameValuePair name { browser = browserNames.${name}; headless = true; })
+    (lib.nameValuePair "${name}-headed" { browser = browserNames.${name}; headless = false; })
+  ]) (lib.attrNames browserNames));
   playwrightPath = "${config.xdg.configHome}/dotfiles/mcp";
 
   claudeHome = if (agentPaths.claude or "") == "" then ".claude" else agentPaths.claude;
@@ -151,15 +155,15 @@ in
     PY
   '';
 
-  xdg.configFile = lib.mapAttrs' (name: browser:
+  xdg.configFile = lib.mapAttrs' (name: server:
     lib.nameValuePair "dotfiles/mcp/playwright-${name}" {
       executable = true;
       text = ''
         #!${pkgs.runtimeShell}
-        exec ${lib.getExe playwright} --browser ${browser} --headless --isolated "$@"
+        exec ${lib.getExe playwright} --browser ${server.browser} ${lib.optionalString server.headless "--headless "}--isolated "$@"
       '';
     }
-  ) browserNames // {
+  ) playwrightServers // {
     "${memoryPath}".source = ../config/agent-memory;
   };
 
@@ -174,6 +178,6 @@ in
         run ${newer.claude-code}/bin/claude mcp add --scope user --transport stdio playwright-${name} \
           -- ${lib.escapeShellArg "${playwrightPath}/playwright-${name}"}
       fi
-    '') (lib.attrNames browserNames)
+    '') (lib.attrNames playwrightServers)
   );
 }

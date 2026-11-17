@@ -32,6 +32,18 @@ Bootstrap remembers the selected profile on each machine. `./bootstrap` reuses i
 
 In Codex, use `/hooks` to review and trust the Herdr session hook.
 
+### Playwright MCP browsers
+
+Home Manager registers four isolated browser servers in Codex and Claude:
+
+- `playwright-chrome` and `playwright-firefox` launch headless for background automation.
+- `playwright-chrome-headed` and `playwright-firefox-headed` open visible browser windows.
+
+Choose the corresponding MCP server for the browser and launch mode you need.
+The Chrome servers use Playwright's Chromium. Headed launches require a graphical
+session; on Linux, the MCP client must inherit the appropriate display environment.
+Run `./bootstrap` to register the servers, then restart your agent session to load them.
+
 ### Caps Lock → Escape
 
 - **macOS** · Open **System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys**. Choose a keyboard, set **Caps Lock Key** to **Escape**, and repeat for each keyboard you use.

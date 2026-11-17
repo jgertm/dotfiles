@@ -50,5 +50,6 @@ in
     sd
     tree
     uv
+    viddy
   ];
 }

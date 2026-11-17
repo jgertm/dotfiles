@@ -6,6 +6,7 @@ in
   bazel = "bazelisk";
   k = "kubectl";
   gst = "git status";
+  watch = "viddy";
 
   eza = listing;
   ls = listing;

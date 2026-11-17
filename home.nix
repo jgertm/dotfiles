@@ -1,5 +1,16 @@
 { agentPaths, config, lib, pkgs, ... }:
 
+let
+  vlc = if pkgs.stdenv.hostPlatform.isDarwin then
+    pkgs.vlc-bin.overrideAttrs (old: rec {
+      version = "3.0.24";
+      src = pkgs.fetchurl {
+        url = "https://download.videolan.org/pub/videolan/vlc/${version}/macosx/vlc-${version}-arm64.dmg";
+        sha256 = "64a89d93cdd30b0e97131743e246373db82d6826ea882d265d46d74b136da2b7";
+      };
+    })
+  else pkgs.vlc;
+in
 {
   imports = [
     ./modules/aerospace.nix
@@ -22,7 +33,9 @@
 
   # The upstream CLI assumes a conventional home.nix. Supply this checkout's
   # flake context without requiring shell aliases or a particular working dir.
-  home.packages = lib.optional (agentPaths.checkout != "") (lib.hiPrio (
+  home.packages = [
+    vlc
+  ] ++ lib.optional (agentPaths.checkout != "") (lib.hiPrio (
     pkgs.writeShellScriptBin "home-manager" ''
       set -eu
       for arg in "$@"; do

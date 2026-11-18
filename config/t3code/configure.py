@@ -8,15 +8,26 @@ import sys
 import tempfile
 
 
+def with_preferences(existing, preferences):
+    result = existing.copy()
+    for key, value in preferences.items():
+        result[key] = (
+            with_preferences(existing.get(key, {}), value)
+            if isinstance(value, dict) else value
+        )
+    return result
+
+
 def merge(path, preferences):
     existing = json.loads(path.read_text()) if path.exists() else {}
     # T3 also accepts the legacy client-settings envelope.
     target = existing.get("settings", existing)
     if not isinstance(target, dict):
         raise ValueError(f"Expected an object in {path}")
-    if all(target.get(key) == value for key, value in preferences.items()):
+    updated = with_preferences(target, preferences)
+    if target == updated:
         return
-    target.update(preferences)
+    target.update(updated)
     fd, temporary = tempfile.mkstemp(dir=path.parent, prefix=path.name + ".")
     try:
         with os.fdopen(fd, "w") as output:
@@ -35,6 +46,7 @@ merge(state / "client-settings.json", {
     "fontFamilyTerminal": font,
     "fontFamilyComposer": font,
     "fontFamilySans": font,
+    "threadDetailsItems": {"context": True},
 })
 theme = state / "themes/dotfiles-tokyo-night.json"
 theme.parent.mkdir(parents=True, exist_ok=True)

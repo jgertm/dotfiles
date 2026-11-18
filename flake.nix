@@ -46,6 +46,22 @@
       url = "file+https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-x86_64-unknown-linux-musl.tar.gz";
       flake = false;
     };
+    t3code-aarch64-darwin = {
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-darwin-arm64.tar.gz";
+      flake = false;
+    };
+    t3code-aarch64-linux = {
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-arm64.tar.gz";
+      flake = false;
+    };
+    t3code-x86_64-linux = {
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-x64.tar.gz";
+      flake = false;
+    };
+    t3code-desktop-aarch64-darwin = {
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/T3-Code-0.1.9-arm64.zip";
+      flake = false;
+    };
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -102,14 +118,21 @@
       };
       mkHome =
         system: username: homeDirectory: profile: extraModules: agentPaths:
+        let pkgs = pkgsFor system;
+        in
         home-manager.lib.homeManagerConfiguration {
-          pkgs = pkgsFor system;
+          inherit pkgs;
           extraSpecialArgs = {
             inherit agentPaths doom-emacs nixpkgs-newer;
             codexArchive = inputs."codex-${system}".outPath;
-            herdr = (pkgsFor system).callPackage ./packages/herdr.nix {
+            herdr = pkgs.callPackage ./packages/herdr.nix {
               herdrBinary = inputs."herdr-${system}".outPath;
             };
+            t3code = pkgs.callPackage ./packages/t3code.nix ({
+              t3Archive = inputs."t3code-${system}".outPath;
+            } // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+              t3DesktopArchive = inputs."t3code-desktop-${system}".outPath;
+            });
             inherit (inputs) herdr-thumbs tridactyl ublock-origin;
           };
           modules = [

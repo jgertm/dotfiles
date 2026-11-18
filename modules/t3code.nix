@@ -1,10 +1,17 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, t3code, ... }:
 
-let
-  t3code = pkgs.callPackage ../packages/t3code.nix { };
-in
 {
   home.packages = [ t3code ];
+
+  # Finder and Dock launch the copied, signed app directly.
+  launchd.agents.t3code-disable-auto-update = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+    enable = true;
+    config = {
+      ProgramArguments = [ "/bin/launchctl" "setenv" "T3CODE_DISABLE_AUTO_UPDATE" "1" ];
+      RunAtLoad = true;
+      LimitLoadToSessionType = "Aqua";
+    };
+  };
 
   # Service and network configuration are outside this module.
   # Desktop appearance is local; pairing and login credentials stay writable.

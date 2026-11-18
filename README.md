@@ -59,11 +59,12 @@ Run `./bootstrap` to register the servers, then restart your agent session to lo
 
 ## T3 Code
 
-Home Manager installs pinned official T3 Code releases with verified hashes.
+Home Manager installs official T3 Code release archives pinned in `flake.lock`.
 macOS uses the signed desktop bundle; Linux installs the headless CLI.
 On macOS it merges Iosevka preferences into writable T3 settings and
-publishes the Tokyo Night theme from `config/t3code/`. Run `./bootstrap` to
-apply changes; update T3 through Nix rather than the app's updater.
+publishes the Tokyo Night theme from `config/t3code/`. The desktop updater is
+disabled. To upgrade, update the four T3 input URLs in `flake.nix` and the
+package version in `packages/t3code.nix`, run `nix flake lock`, then run `./bootstrap`.
 
 Configure remote environments and route preferences in T3 itself. Pairing
 credentials and the encrypted route catalog belong to T3's private writable

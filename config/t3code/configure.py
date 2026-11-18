@@ -18,13 +18,22 @@ def with_preferences(existing, preferences):
     return result
 
 
-def merge(path, preferences):
+def merge(path, preferences, project_script=None):
     existing = json.loads(path.read_text()) if path.exists() else {}
     # T3 also accepts the legacy client-settings envelope.
     target = existing.get("settings", existing)
     if not isinstance(target, dict):
         raise ValueError(f"Expected an object in {path}")
     updated = with_preferences(target, preferences)
+    if project_script is not None:
+        scripts = list(target.get("defaultProjectScripts", []))
+        for index, script in enumerate(scripts):
+            if script["id"] == project_script["id"]:
+                scripts[index] = {**script, **project_script}
+                break
+        else:
+            scripts.append(project_script)
+        updated["defaultProjectScripts"] = scripts
     if target == updated:
         return
     target.update(updated)
@@ -59,4 +68,16 @@ merge(state / "settings.json", {
     "defaultThemeSetAt": revision,
     "defaultAppearance": "dark",
     "defaultAppearanceSetAt": revision,
+}, project_script={
+    "id": "open-in-emacs",
+    "name": "Open in Emacs",
+    "command": (
+        '"$HOME/.nix-profile/bin/emacsclient" --reuse-frame --no-wait --eval '
+        "'(progn (magit-status (pop server-eval-args-left)) "
+        "(select-frame-set-input-focus (selected-frame)) nil)' "
+        '"$PWD"'
+    ),
+    "icon": "play",
+    "runOnWorktreeCreate": False,
+    "runOnSettle": False,
 })

@@ -261,49 +261,49 @@
     "t3code-aarch64-darwin": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-esYkDy2qX6AT4pWWfBRNU7gw3iSIdxeNqRZvVh9ckZs=",
+        "narHash": "sha256-Sng9CpvFvpq8IpIfTepS45yQ+Eo/IanK3IwfsNNQns8=",
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-darwin-arm64.tar.gz"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-darwin-arm64.tar.gz"
       },
       "original": {
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-darwin-arm64.tar.gz"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-darwin-arm64.tar.gz"
       }
     },
     "t3code-aarch64-linux": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-MWtPw5tBb5gg5mxzeGalvFcCfCr6IPh598kaM15jl2c=",
+        "narHash": "sha256-wxHeZqYvKo4lYkW/hWPxhagnmOuqpZjSrizaAS7/yc4=",
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-arm64.tar.gz"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-linux-arm64.tar.gz"
       },
       "original": {
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-arm64.tar.gz"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-linux-arm64.tar.gz"
       }
     },
     "t3code-desktop-aarch64-darwin": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-U+fw8gjcoXUu+vYV4MM/grmRdleWsGRUzmkGDZMmvkM=",
+        "narHash": "sha256-lkvjTFOJvzgJNwIOKCf6w8dg4iWOvMFdvl2it3y0i2Q=",
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/T3-Code-0.1.9-arm64.zip"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/T3-Code-0.1.10-arm64.zip"
       },
       "original": {
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/T3-Code-0.1.9-arm64.zip"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/T3-Code-0.1.10-arm64.zip"
       }
     },
     "t3code-x86_64-linux": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-gXU6mR7UbiTPS9biehuwXuQ70Xw9okLA3sA2RlOm7Hc=",
+        "narHash": "sha256-GwzGDBCTO4qBPfMK5hdorKekEQnToQVtgZ0S5bffH9Y=",
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-x64.tar.gz"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-linux-x64.tar.gz"
       },
       "original": {
         "type": "file",
-        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-x64.tar.gz"
+        "url": "https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-linux-x64.tar.gz"
       }
     },
     "tridactyl": {

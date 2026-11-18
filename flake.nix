@@ -47,19 +47,19 @@
       flake = false;
     };
     t3code-aarch64-darwin = {
-      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-darwin-arm64.tar.gz";
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-darwin-arm64.tar.gz";
       flake = false;
     };
     t3code-aarch64-linux = {
-      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-arm64.tar.gz";
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-linux-arm64.tar.gz";
       flake = false;
     };
     t3code-x86_64-linux = {
-      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/t3-0.1.9-linux-x64.tar.gz";
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.10/t3-0.1.10-linux-x64.tar.gz";
       flake = false;
     };
     t3code-desktop-aarch64-darwin = {
-      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.9/T3-Code-0.1.9-arm64.zip";
+      url = "file+https://github.com/pingdotgg/t3code/releases/download/v0.1.10/T3-Code-0.1.10-arm64.zip";
       flake = false;
     };
     home-manager = {

@@ -13,7 +13,7 @@
 
 stdenvNoCC.mkDerivation {
   pname = "t3code";
-  version = "0.1.9";
+  version = "0.1.10";
   src = t3Archive;
   # File inputs can arrive as store paths without an archive extension.
   unpackCmd = ''tar -xzf "$curSrc"'';
